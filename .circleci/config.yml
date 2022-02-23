@@ -46,10 +46,10 @@ jobs:
       - shallow_checkout
       - prepare_build_environment
       - run:
-         name: "Build and test"
-            command: |
-              mvn -v
-              mvn deploy -s .circleci/maven-settings.xml --fail-at-end
+          name: "Build and test"
+          command: |
+            mvn -v
+            mvn deploy -s .circleci/maven-settings.xml --fail-at-end
       - store_test_results:
           path: ~/target/surefire-reports
       - store_artifacts:
