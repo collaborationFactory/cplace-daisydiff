@@ -5,14 +5,14 @@
 
   <groupId>cf.cplace.org.outerj.daisy</groupId>
   <artifactId>daisydiff</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <name>Daisydiff</name>
   <description>
     A Java library to compare HTML files.
     Fork of Nuxeo maintenance branch forked from tag v1.2.
    </description>
 
-  <url>http://DaisyDiff.github.io</url>
+  <url>https://github.com/collaborationFactory/cplace-daisydiff</url>
   <licenses>
     <license>
       <name>Apache License Version 2.0, January 2004</name>
@@ -208,22 +208,22 @@
     <repository>
       <id>vendor-releases</id>
       <url>
-        https://maven.nuxeo.org/nexus/content/repositories/vendor-releases
+        https://cplace.jfrog.io/artifactory/cplace-daisydiff/
       </url>
     </repository>
     <snapshotRepository>
       <id>vendor-snapshots</id>
       <url>
-        https://maven.nuxeo.org/nexus/content/repositories/vendor-snapshots
+        https://cplace.jfrog.io/artifactory/cplace-daisydiff/
       </url>
       <uniqueVersion>true</uniqueVersion>
     </snapshotRepository>
   </distributionManagement>
 
   <scm>
-    <connection>scm:git:git://github.com/nuxeo/daisydiff.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com:nuxeo/daisydiff.git</developerConnection>
-    <url>https://github.com/nuxeo/daisydiff</url>
+    <connection>scm:git:git://github.com/collaborationFactory/cplace-daisydiff.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:collaborationFactory/cplace-daisydiff.git</developerConnection>
+    <url>https://github.com/collaborationFactory/cplace-daisydiff</url>
   </scm>
 
 </project>
