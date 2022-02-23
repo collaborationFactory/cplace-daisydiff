@@ -16,45 +16,12 @@ parameters:
     default: "1"
 
 commands:
-  cached_checkout:
-    description: "Checkout the code using a full clone with cache"
-    steps:
-      - restore_cache:
-          name: "Restore Repository Cache"
-          keys:
-            - source-v1-{{ .Branch }}-{{ .Revision }}
-            - source-v1-{{ .Branch }}-
-            - source-v1-
-      - checkout
-      - save_cache:
-          name: "Save Repository Cache"
-          key: source-v1-{{ .Branch }}-{{ .Revision }}
-          paths:
-            - ".git"
   shallow_checkout:
     description: "Checkout the code using a shallow clone"
-      steps:
-        - cplace/shallow_clone:
-            clone_to_dir: .
-            trace_log: false
-  restore_gradle_cache:
     steps:
-      - run:
-          name: "Prepare Checksum for Gradle Dependencies"
-          command:  find . -maxdepth 3 -type f \( -name "build.gradle" -o -name "gradle-wrapper.properties" \) -exec shasum {} + | sort | tee gradle-build-files.checksum
-      - restore_cache:
-          name: "Restore Gradle Cache"
-          keys:
-            - gradle-v3-{{ checksum "gradle-build-files.checksum" }}
-            - gradle-v3-
-  save_gradle_cache:
-    description: "Saves the gradle cache. Requires the checksum file created in the restore_gradle_cache command"
-    steps:
-      - save_cache:
-          name: "Save Gradle Dependencies Cache"
-          key: gradle-v3-{{ checksum "gradle-build-files.checksum" }}
-          paths:
-            - "~/.gradle"
+      - cplace/shallow_clone:
+          clone_to_dir: .
+          trace_log: false
   prepare_build_environment:
     description: "Prepares the build environment and installs java."
     steps:
@@ -67,62 +34,26 @@ commands:
             # echo "export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> $BASH_ENV
             java -version
             javac -version
-  publish_artifacts:
-    description: "Publishes the gradle build artifacts. Will retry two times if artifactory is not responsive with an increasing sleep time."
-    steps:
-      - run:
-          name: "Resilient Publish cplace Artifacts"
-          command: |
-            set -e
-            _retry_count=0
-            while true; do
-              if [[ "$_retry_count" -gt 2 ]]; then
-                echo "Failed to upload the artifacts after $_retry_count retries!"
-                exit 1
-              fi
-              if ./gradlew --stacktrace publish; then
-                echo "Successfully uploaded the artifacts."
-                break
-              fi
-              _retry_count=${_retry_count + 1}
-              sleep ${_retry_count * 5}
-            done
 jobs:
   build-and-test:
     machine:
-      image: ubuntu-2004:202010-01
+      image: ubuntu-2004:202201-02
     parallelism: 1
     shell: /bin/bash --login
     environment:
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-    parameters:
-      PUBLISH_SNAPSHOT:
-        type: boolean
-        default: false
+      _JAVA_OPTIONS: -Xmx2048m -Djava.awt.headless="true"
     steps:
-      - cached_checkout
-      #      - shallow_checkout
-      - restore_gradle_cache
+      - shallow_checkout
       - prepare_build_environment
       - run:
-          name: "Build and Test"
-          command: ./gradlew --continue --stacktrace build
-          no_output_timeout: 10m
-      - save_gradle_cache
-      - run:
-          name: "Save Test Results"
-          command: |
-            mkdir -p ~/test-results/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
-          when: always
+          name: "Build and test"
+            command: |
+              mvn -v
+              mvn deploy -s .circleci/maven-settings.xml --fail-at-end
       - store_test_results:
-          path: ~/test-results
+          path: ~/target/surefire-reports
       - store_artifacts:
-          path: ~/test-results/junit
-      - when:
-          condition: << parameters.PUBLISH_SNAPSHOT >>
-          steps:
-            - publish_artifacts
+          path: ~/target/surefire-reports
 
 workflows:
   version: 2
@@ -132,21 +63,3 @@ workflows:
       - build-and-test:
           name: "build"
           context: "cplace.jfrog.io"
-          filters:
-            branches:
-              ignore: /^staging\/.*$/
-            tags:
-              ignore: /^v\d+\.\d+\.\d+$/
-
-  snapshot:
-    when: << pipeline.parameters.workflow_commit >>
-    jobs:
-      - build-and-test:
-          name: "build-for-publish"
-          context: "cplace.jfrog.io"
-          PUBLISH_SNAPSHOT: true
-          filters:
-            branches:
-              only: /^staging\/.*$/
-            tags:
-              only: /^v\d+\.\d+\.\d+$/
