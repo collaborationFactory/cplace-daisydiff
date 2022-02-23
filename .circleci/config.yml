@@ -46,7 +46,7 @@ jobs:
       - shallow_checkout
       - prepare_build_environment
       - run:
-          name: "Build and test"
+         name: "Build and test"
             command: |
               mvn -v
               mvn deploy -s .circleci/maven-settings.xml --fail-at-end
