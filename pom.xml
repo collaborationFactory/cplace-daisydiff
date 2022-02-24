@@ -206,18 +206,10 @@
 
   <distributionManagement>
     <repository>
-      <id>vendor-releases</id>
-      <url>
-        https://cplace.jfrog.io/artifactory/cplace-daisydiff/
-      </url>
+      <id>cplace.daisydiff</id>
+      <url>https://cplace.jfrog.io/artifactory/cplace-daisydiff/</url>
+      <name>cplace-daisydiff</name>
     </repository>
-    <snapshotRepository>
-      <id>vendor-snapshots</id>
-      <url>
-        https://cplace.jfrog.io/artifactory/cplace-daisydiff/
-      </url>
-      <uniqueVersion>true</uniqueVersion>
-    </snapshotRepository>
   </distributionManagement>
 
   <scm>

@@ -40,8 +40,6 @@ jobs:
       image: ubuntu-2004:202201-02
     parallelism: 1
     shell: /bin/bash --login
-    environment:
-      _JAVA_OPTIONS: -Xmx2048m -Djava.awt.headless="true"
     steps:
       - shallow_checkout
       - prepare_build_environment
