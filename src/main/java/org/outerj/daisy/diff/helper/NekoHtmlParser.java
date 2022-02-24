@@ -12,12 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * This file has been changed by collaboration Factory AG.
  */
 package org.outerj.daisy.diff.helper;
 
 import java.io.IOException;
 
-import org.cyberneko.html.parsers.SAXParser;
+import org.codelibs.nekohtml.parsers.SAXParser;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;

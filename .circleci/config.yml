@@ -1,43 +1,63 @@
-# Java Maven CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-java/ for more details
-#
-version: 2
-jobs:
-  build:
-    docker:
-      # specify the version you desire here
-      - image: circleci/openjdk:8-jdk
-      
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+version: 2.1
 
-    working_directory: ~/repo
+orbs:
+  cplace: collaboration-factory/cplace@<< pipeline.parameters.cplace-orb-version >>
 
-    environment:
-      # Customize the JVM maximum heap limit
-      MAVEN_OPTS: -Xmx3200m
-    
+parameters:
+  workflow_commit:
+    type: boolean
+    default: true
+  cplace-orb-version:
+    description: |
+      The version of the orb to use.
+      Used to allow integration testing of new orb versions.
+      For production, the default should be used.
+    type: string
+    default: "1"
+
+commands:
+  shallow_checkout:
+    description: "Checkout the code using a shallow clone"
     steps:
-      - checkout
+      - cplace/shallow_clone:
+          clone_to_dir: .
+          trace_log: false
+  prepare_build_environment:
+    description: "Prepares the build environment and installs java."
+    steps:
+      - run:
+          name: "Prepare build environment"
+          command: |
+            set -e
+            # sudo update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/jre/bin/java
+            # sudo update-alternatives --set javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac
+            # echo "export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64" >> $BASH_ENV
+            java -version
+            javac -version
+jobs:
+  build-and-test:
+    machine:
+      image: ubuntu-2004:202201-02
+    parallelism: 1
+    shell: /bin/bash --login
+    steps:
+      - shallow_checkout
+      - prepare_build_environment
+      - run:
+          name: "Build and test"
+          command: |
+            mvn -v
+            mvn deploy -s .circleci/maven-settings.xml --fail-at-end
+      - store_test_results:
+          path: ~/target/surefire-reports
+      - store_artifacts:
+          path: ~/target/surefire-reports
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "pom.xml" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: mvn dependency:go-offline
-
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
-        
-      # run tests!
-      - run: mvn integration-test test
-
-
+workflows:
+  version: 2
+  commit:
+    when: << pipeline.parameters.workflow_commit >>
+    jobs:
+      - build-and-test:
+          name: "build"
+          context: "cplace.jfrog.io"
