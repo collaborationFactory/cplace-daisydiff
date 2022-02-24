@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This file has been changed by Collaboration Factory AG.
+ * This file has been changed by collaboration Factory AG.
  */
 package org.outerj.daisy.diff.helper;
 
