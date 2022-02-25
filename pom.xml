@@ -27,19 +27,8 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.cyberneko</groupId>
-        <artifactId>html</artifactId>
-        <version>1.9.8</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.core.runtime</groupId>
-        <artifactId>eclipse-core-runtime</artifactId>
-        <version>20070801</version>
-      </dependency>
-      <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <scope>test</scope>
         <version>4.8.1</version>
       </dependency>
     </dependencies>
